@@ -10,20 +10,18 @@ function [tnList,ynList] = ImplicitEulers(func,tspan,N,y0)
 %    func  : a function handle to function f(u,t)
 %    tspan : a 1x2 array of the form [tstart tend]
 %    N     : total number of steps in tspan
-%    y0   : initialvalue(s)s
+%    y0   : initialvalue(s)
 %    param : parameters to be passed to func
 %
 
 ynList = zeros(1,N+1);
 tnList = zeros(1,N+1);
 dt = tspan/N;
-tol = 10e-4;
 
 ynList(1)=y0;
 
 for k = 1:N
-    yn1 = newtonODE(ynList(k)+0.0005,tol,tnList(k)+dt,ynList(k),dt);
-    f = feval(func,tnList(k)+dt,yn1);
-    ynList(k+1) = ynList(k)+dt*f;
+    yn1 = newtonODE(ynList(k)+0.05,tol,tnList(k)+dt,ynList(k),dt);
+    ynList(k+1) = yn1;
     tnList(k+1) = tnList(k)+dt;
 end

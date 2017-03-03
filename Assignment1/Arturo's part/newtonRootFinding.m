@@ -3,6 +3,8 @@ function [ xn1 ] = newtonRootFinding(x0,tol)
 %   Detailed explanation goes here
 xn = x0;
 maxIt = 100;
+c = 2;
+b = 1;
 [f,fprime]=f1(x0);
 err = 1000;
 it = 0;
