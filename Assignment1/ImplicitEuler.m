@@ -1,10 +1,10 @@
-function [tnList,ynList] = ExplicitEulers(func,tspan,N,y0)
+function [tnList,ynList] = ImplicitEuler(func,tspan,N,y0)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form
 %                u? = f(u,t),  u(tstart) = eta
 %
-% using Euler?s Method in n steps (constant step size).
+% using Euler?s Method in n steps (constant step size).s
 %
 % INPUT:
 %    func  : a function handle to function f(u,t)
@@ -21,7 +21,7 @@ dt = tspan/N;
 ynList(1)=y0;
 
 for k = 1:N
-    f = feval(func,tnList(k),ynList(k));
-    ynList(k+1) = ynList(k)+dt*f;
+    yn1 = newtonODE(ynList(k)+0.05,tol,tnList(k)+dt,ynList(k),dt);
+    ynList(k+1) = yn1;
     tnList(k+1) = tnList(k)+dt;
 end
