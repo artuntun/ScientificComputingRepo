@@ -13,8 +13,8 @@ hold off
 
 %% Impicit Euler
 close all; clear all;
-[tnList,ynList] = ImplicitEulers(@func,3.5,100,1);
-[tnList1,ynList1] = ExplicitEulers(@func,3.5,100,1);
+[tnList,ynList] = ImplicitEulers(@func,@Jacob,100,10000,1);
+[tnList1,ynList1] = ExplicitEulers(@func,100,10000,1);
 
 hold on
     plot(tnList,ynList)

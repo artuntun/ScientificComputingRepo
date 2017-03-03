@@ -13,6 +13,11 @@ function [tnList,ynList] = ImplicitEulers(func,Jacob,tspan,N,y0)
 %    y0   : initialvalue(s)s
 %    param : parameters to be passed to func
 %
+sizeY = size(Y0);
+Ndim = sizeY(1);
+sizeTspan = size(tspan);
+
+%%Initialization
 ynList = zeros(1,N+1);
 tnList = zeros(1,N+1);
 dt = tspan/N;

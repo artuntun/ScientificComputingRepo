@@ -1,4 +1,4 @@
-function [tnList,ynList] = ExplicitEulers(func,tspan,N,y0)
+function [tnList,ynList] = ExplicitEulers(func,tspan,N,Y0)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form
@@ -13,15 +13,31 @@ function [tnList,ynList] = ExplicitEulers(func,tspan,N,y0)
 %    y0   : initialvalue(s)
 %    param : parameters to be passed to func
 %
+sizeY = size(Y0);
+Ndim = sizeY(1);
+sizeTspan = size(tspan);
+Ninit = sizeTspan(2);  % We can be given only the end time, then the begining is 0
 
-ynList = zeros(1,N+1);
-tnList = zeros(1,N+1);
-dt = tspan/N;
+ynList = zeros(Ndim,N+1);
+tnList = zeros(Ndim,N+1);
 
-ynList(1)=y0;
+%% Initialization
+if (Ninit == 1)
+    tbegin = 0;
+    tend = tspan;
+elseif(Ninit == 2) % [tbegin tend]
+    tbegin = tspan(1,1);
+    tend = tspan(1,2);
+end
+dt = (tend - tbegin)/N;
+
+tnList(1) = tbegin;
+ynList(:,1) = Y0;
+
+%% Loop
 
 for k = 1:N
-    f = feval(func,tnList(k),ynList(k));
-    ynList(k+1) = ynList(k)+dt*f;
+    f = feval(func,tnList(k),ynList(:,k));
+    ynList(:,k+1) = ynList(:,k)+dt*f;
     tnList(k+1) = tnList(k)+dt;
 end
