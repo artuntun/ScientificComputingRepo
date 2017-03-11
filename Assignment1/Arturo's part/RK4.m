@@ -1,4 +1,4 @@
-function [tnList,ynList] = ExplicitEulers(func,tspan,N,Y0)
+function [tnList,ynList] = RK4(func,tspan,N,Y0)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form
@@ -37,7 +37,11 @@ ynList(:,1) = Y0;
 %% Loop
 
 for k = 1:N
-    f = feval(func,tnList(k),ynList(:,k));
-    ynList(:,k+1) = ynList(:,k)+dt*f;
+    s1 = feval(func,tnList(k),ynList(k));  % Explicit Euleer
+    s2 = feval(func,tnList(k) + dt/2 ,ynList(:,k) + (dt/2) * s1);  % Midpoint method
+    s3 = feval(func,tnList(k) + dt/2 ,ynList(:,k) + (dt/2) * s2);  % Recursive of Midpoint method
+    s4 = feval(func,tnList(k) + dt,ynList(:,k) + s3*dt); % Slope in the predictive point as if used Euler with s3 as slope
+
+    ynList(:,k+1) = ynList(:,k)+ (dt/6)*(s1 + 2*s2 + 2*s3 + s4);
     tnList(k+1) = tnList(k)+dt;
 end

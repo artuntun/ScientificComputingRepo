@@ -1,4 +1,4 @@
-function [tnList,ynList] = ExplicitEulers(func,tspan,N,Y0)
+function [tnList,ynList] = ExplicitTrapezoid(func,tspan,N,Y0)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form
@@ -15,6 +15,7 @@ function [tnList,ynList] = ExplicitEulers(func,tspan,N,Y0)
 %
 sizeY = size(Y0);
 Ndim = sizeY(1);
+
 sizeTspan = size(tspan);
 Ninit = sizeTspan(2);  % We can be given only the end time, then the begining is 0
 
@@ -35,9 +36,13 @@ tnList(1) = tbegin;
 ynList(:,1) = Y0;
 
 %% Loop
-
 for k = 1:N
     f = feval(func,tnList(k),ynList(:,k));
-    ynList(:,k+1) = ynList(:,k)+dt*f;
+    
+    % Calculate the next fn+1 computed by the Explicit E
+    ynExplicitEuler = ynList(:,k) + dt*f;
+    fnExplicitEuler = feval(func,tnList(k) + dt ,ynExplicitEuler);
+    
+    ynList(:,k+1) = ynList(:,k)+ (dt/2)*(fnExplicitEuler + f);
     tnList(k+1) = tnList(k)+dt;
 end
