@@ -1,4 +1,4 @@
-function [tnList,ynList] = ExplicitEulers(func,tspan,N,Y0, Niter)
+function [tnList,ynList] = ImplicitEulers1(func,tspan,N,Y0, Niter)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form

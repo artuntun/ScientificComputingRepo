@@ -1,4 +1,4 @@
-function [tnList,ynList] = ExplicitEulers(func,tspan,N,Y0, Niter)
+function [tnList,ynList] = ExplicitMidpoint(func,tspan,N,Y0)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form
@@ -38,7 +38,10 @@ ynList(:,1) = Y0;
 
 for k = 1:N
     f = feval(func,tnList(k),ynList(:,k));
-    for 
-    ynList(:,k+1) = ynList(:,k)+dt*f;
+    
+    % Calculate the next fn+1 computed by the next step
+    fnMidpoint = feval(func,tnList(k) + dt/2 ,ynList(:,k) + (dt/2) * f);
+    
+    ynList(k+1) = ynList(:,k)+ dt*fnMidpoint;
     tnList(k+1) = tnList(k)+dt;
 end

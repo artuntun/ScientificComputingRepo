@@ -37,7 +37,7 @@ ynList(:,1) = Y0;
 %% Loop
 
 for k = 1:N
-    s1 = feval(func,tnList(k),ynList(k));  % Explicit Euleer
+    s1 = feval(func,tnList(k),ynList(:,k));  % Explicit Euleer
     s2 = feval(func,tnList(k) + dt/2 ,ynList(:,k) + (dt/2) * s1);  % Midpoint method
     s3 = feval(func,tnList(k) + dt/2 ,ynList(:,k) + (dt/2) * s2);  % Recursive of Midpoint method
     s4 = feval(func,tnList(k) + dt,ynList(:,k) + s3*dt); % Slope in the predictive point as if used Euler with s3 as slope
