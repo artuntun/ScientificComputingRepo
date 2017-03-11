@@ -11,7 +11,22 @@ hold on
     plot(tnList,exp(1*tnList)*1)  %e^(lambda*x)*x0
     legend('implicit','explicit','real')
 hold off
-%% Implict Euler for multidimensional for Predator-Prey
+%% Implict Euler for multidimensional for xdot=lambda*x
+close all; clear all;
+tspan = [0 200];
+Y0=[0.5; 0.5];
+N = 10000;
+[tnList,ynList] = ImplicitEulers(@DepPrey,@JacobDepPrey,tspan,N,Y0);
+[tnList1,ynList1] = ExplicitEulers(@DepPrey,tspan,N,Y0);
+
+hold on
+    plot(ynList(1,:),ynList(2,:),'LineWidth',1)
+    plot(ynList1(1,:),ynList1(2,:),'LineWidth',1)
+    leg = legend('Implict','Explicit');
+    set(leg,'FontSize',16);
+    grid
+hold off
+%% Implic
 close all; clear all;
 tspan = [0 200];
 Y0=[0.5; 0.5];
@@ -55,31 +70,13 @@ N = 1000;
 Y0 = 1;
 [tnList1,ynList1] = ImplicitEulersAdaptiveStep(@func,@Jacob,tspan,...
     N,Y0,abstol,reltol);
-[tnList,ynList] = ImplicitEulers(@func,@Jacob,tspan,N*2,Y0);
+[tnList,ynList] = ImplicitEulers(@func,@Jacob,tspan,N,Y0);
 
 hold on
     plot(tnList1,ynList1,'LineWidth',2)
     plot(tnList,ynList,'LineWidth',2)
     plot(tnList,exp(1*tnList)*1,'LineWidth',2)  %e^(lambda*x)*x0
     leg = legend('Adaptive','Fix-step','real');
-    set(leg,'FontSize',16);
-    grid
-hold off
-
-%% Testin Classic Runge Kutta
-
-close all; clear all;
-abstol = 1e-3;
-reltol = 1e-4;
-tspan = [0 50];
-N = 1000;
-Y0 = 1;
-[tnList,ynList] = RK4AdaptiveStep(@func,tspan,N,Y0,abstol,reltol);
-
-hold on
-    plot(tnList,ynList,'LineWidth',2)
-    plot(tnList,exp(1*tnList)*1,'LineWidth',2)  %e^(lambda*x)*x0
-    leg = legend('RK','real');
     set(leg,'FontSize',16);
     grid
 hold off

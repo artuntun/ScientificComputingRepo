@@ -1,0 +1,11 @@
+notes assignment 1:
+
+plots style
+- fontsize 16
+- linewidth 3
+_graphs of error respect to step size in logarithmic scale
+
+Tareas
+- 
+
+Question: can we use the already implemented DOPRI?
