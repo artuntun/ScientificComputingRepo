@@ -19,7 +19,7 @@ sizeTspan = size(tspan);
 Ninit = sizeTspan(2);  % We can be given only the end time, then the begining is 0
 
 ynList = zeros(Ndim,N+1);
-tnList = zeros(Ndim,N+1);
+tnList = zeros(1,N+1);
 
 %% Initialization
 if (Ninit == 1)
