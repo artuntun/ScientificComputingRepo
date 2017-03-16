@@ -1,4 +1,4 @@
-function [ gradY] = DepPrey( t, Y )
+function [ gradY] = DepPrey( t, Y, args)
 %DEPPREY Summary of this function goes here
 %   Detailed explanation goes here
 
