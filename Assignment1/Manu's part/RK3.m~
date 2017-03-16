@@ -1,0 +1,56 @@
+function [tnList,ynList] = RK3(func,tspan,N,Y0)
+%
+% This function solves a general first-order Initial Value Problem
+% of the form
+%                u? = f(u,t),  u(tstart) = eta
+%
+% using Euler?s Method in n steps (constant step size).
+%
+% INPUT:
+%    func  : a function handle to function f(u,t)
+%    tspan : a 1x2 array of the form [tstart tend]
+%    N     : total number of steps in tspan
+%    y0   : initialvalue(s)
+%    param : parameters to be passed to func
+%
+
+A = [0 0 0;
+    1/2 0 0;
+    -1 2 0];
+b = [1/6; 2/3; 1/6];
+c = [0; 1; 1/2];
+d = [1/12; -1/6; 1/12];
+s = 3;
+        
+sizeY = size(Y0);
+Ndim = sizeY(1);
+sizeTspan = size(tspan);
+Ninit = sizeTspan(2);  % We can be given only the end time, then the begining is 0
+
+ynList = zeros(Ndim,N+1);
+tnList = zeros(Ndim,N+1);
+
+%% Initialization
+if (Ninit == 1)
+    tbegin = 0;
+    tend = tspan;
+elseif(Ninit == 2) % [tbegin tend]
+    tbegin = tspan(1,1);
+    tend = tspan(1,2);
+end
+dt = (tend - tbegin)/N;
+
+tnList(1) = tbegin;
+ynList(:,1) = Y0;
+
+%% Loop
+
+for k = 1:N
+    s1 = feval(func,tnList(k),ynList(:,k));  % Explicit Euleer
+    s2 = feval(func,tnList(k) + dt/2 ,ynList(:,k) + (dt/2) * s1);  % Midpoint method
+    s3 = feval(func,tnList(k) + dt/2 ,ynList(:,k) + (dt/2) * s2);  % Recursive of Midpoint method
+    s4 = feval(func,tnList(k) + dt,ynList(:,k) + s3*dt); % Slope in the predictive point as if used Euler with s3 as slope
+
+    ynList(:,k+1) = ynList(:,k)+ (dt/6)*(s1 + 2*s2 + 2*s3 + s4);
+    tnList(k+1) = tnList(k)+dt;
+end

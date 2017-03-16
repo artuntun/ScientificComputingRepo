@@ -1,7 +1,7 @@
 function [ gradY ] = VanDelPol( t, Y, args )
 %VANDELPOL Summary of this function goes here
 %   Detailed explanation goes here
-    mu = 3;
+    mu = args;
 
     % Syntax: xdot = PreyPredator(t,x,a,b)
     gradY = zeros(2,1);
