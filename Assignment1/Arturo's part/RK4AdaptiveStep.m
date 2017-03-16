@@ -1,17 +1,24 @@
-function [tnList,ynList] = RK4AdaptiveStep(func,tspan,N,Y0,abstol,reltol)
+function [tnList,ynList,hList,rList,nfun] = RK4AdaptiveStep(func,tspan,N,Y0,abstol,reltol)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form
-%                u? = f(u,t),  u(tstart) = eta
+%                dot_y = f(y,t),  y(tstart) = tbegin
 %
-% using Euler?s Method in n steps (constant step size).
+% using Rungge Kitta in n steps (adaptive step size).
 %
 % INPUT:
 %    func  : a function handle to function f(u,t)
 %    tspan : a 1x2 array of the form [tstart tend]
-%    N     : total number of steps in tspan
+%    N     : paramter for calculating first step size
 %    y0   : initialvalue(s)
-%    param : parameters to be passed to func
+%    abstol : absolute tolerance
+%    reltol : relative tolerance
+% OUTPUT:
+%    tnList  : time 
+%    ynList : solution
+%    hList     : each step size 
+%    rList   : estimated error each step
+%    nfun : number of function evaluations
 %
 sizeTspan = size(tspan);
 Ninit = sizeTspan(2);  % We can be given only the end time, then the begining is 0
@@ -28,6 +35,8 @@ h = (tend - tbegin)/N;
 
 ynList = [];
 tnList = [];
+rList = [];
+hList = [];
 tnList(1) = tbegin;
 ynList(:,1) = Y0;
 
@@ -39,32 +48,37 @@ kpow = 0.2;
 
 %% Loop
 k=1;
+nfun = 0;
 while tnList(k) < tend
     %In order to compute until tend
     if (tnList(k)+h>tend)
         h = tend-tnList(k);
     end
-    
+    f = feval(func,tnList(k),ynList(:,k));
+    nfun = nfun+1;
     acceptedStep = 0;
     while ~acceptedStep
-        
+        nfun = nfun+10;
         %y(n+1) in one step
-        y=RungeKuttaStep(func,tnList(k),ynList(:,k),h);
+        y=RungeKuttaStep(func,tnList(k),ynList(:,k),h,f);
         
         %y(n+1) in two step
         hm = h/2;
-        ym=RungeKuttaStep(func,tnList(k),ynList(:,k),hm);
-        y_hat=RungeKuttaStep(func,tnList(k)+hm,ym,hm);
+        ym=RungeKuttaStep(func,tnList(k),ynList(:,k),hm,f);
+        fm = feval(func,tnList(k)+hm,ym);
+        y_hat=RungeKuttaStep(func,tnList(k)+hm,ym,hm,fm);
         
         e = abs(y_hat - y);
         r = max(e./max(abstol,abs(y_hat).*reltol));
         if r<=1.0
             acceptedStep = 1;
+            hList(k) = h;
+            rList(k) = r;
             ynList(:,k+1) = y_hat;
             tnList(k+1) = tnList(k)+h;
         end
         %hnew = h*sqrt(wanted_error/current_error)
-        h = max(facmin, min(sqrt(epstol/r)^kpow,facmax))*h;
+        h = max(facmin, min((epstol/r)^kpow,facmax))*h;
     end
     k = k+1;
 end

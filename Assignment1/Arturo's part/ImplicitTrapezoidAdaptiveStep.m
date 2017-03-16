@@ -1,31 +1,28 @@
- function [tnList,ynList,hList,rList,nfun] = ImplicitEulersAdaptiveStep(func,...
-     Jacob,tspan,N,Y0,abstol,reltol,controller)
+function [tnList,ynList,hList,rList,nfun] = ImplicitTrapezoidAdaptiveStep...
+    (func,Jacob,tspan,N,Y0,abstol,reltol,controller)
 %
 % This function solves a general first-order Initial Value Problem
 % of the form
 %                dot_y = f(y,t),  y(tstart) = tbegin
 %
-% using Implicit euler in n steps (adaptive step size).
+% using Trapezoid Method in n steps (constant step size).
 %
 % INPUT:
 %    func  : a function handle to function f(u,t)
 %    tspan : a 1x2 array of the form [tstart tend]
-%    N     : paramter for calculating first step size
+%    N     : total number of steps in tspan
 %    y0   : initialvalue(s)
-%    abstol : absolute tolerance
-%    reltol : relative tolerance
-% OUTPUT:
-%    tnList  : time 
-%    ynList : solution
-%    hList     : each step size 
-%    rList   : estimated error each step
-%    nfun : number of function evaluations
+%    param : parameters to be passed to func
 %
-
 sizeY = size(Y0);
 Ndim = sizeY(1);
 sizeTspan = size(tspan);
-Ninit = sizeTspan(2);
+Ninit = sizeTspan(2);  % We can be given only the end time, then the begining is 0
+
+ynList = [];
+tnList = [];
+rList = [];
+hList = [];
 
 %% Initialization
 if (Ninit == 1)
@@ -37,15 +34,9 @@ elseif(Ninit == 2) % [tbegin tend]
 end
 h = (tend - tbegin)/N;
 
-ynList = [];
-tnList = [];
-rList = [];
-hList = [];
 tnList(1) = tbegin;
-ynList(:,1)=Y0;
-
-tol = 10e-5; % Newtons method tolerance
-
+ynList(:,1) = Y0;
+tol = 10e-5;
 %%error estimation and control paramters
 epstol = 0.8;
 facmin = 0.1;
@@ -56,7 +47,7 @@ if controller == 'PI'
     b = 1/6;
     c = 1/2;
 else
-    a = 1/2;
+    a = 1/3;
     b = 0;
     c = 0;
 end
@@ -65,42 +56,46 @@ end
 k=1;
 nfun = 0;
 while tnList(k) < tend
-    
     %In order to compute until tend
     if (tnList(k)+h>tend)
         h = tend-tnList(k);
     end
-    
-    f = feval(func,tnList(k),ynList(:,k));
     nfun = nfun+1;
+    f = feval(func,tnList(k),ynList(:,k));
     
     acceptedStep = 0;
-    it = 0;
     while ~acceptedStep
-        it = it+1;
-        %y(n+1) in one step
-        y_guess = ynList(:,k)+h*f; %Forwards euler
-        [y,calls] = newtonODEadaptive(func,Jacob,y_guess,tol,tnList(k)+h,ynList(:,k),h);
+        %%%%%%%%%in one step
+        yn_guess = ynList(:,k) + h*f;
+        [yn,calls] = newtonODEadaptive(func,Jacob,...
+            yn_guess,tol,tnList(k)+h,ynList(:,k),h);
         nfun = nfun+calls+1;
+        fn = feval(func,tnList(k) + h ,yn);
+        y = ynList(:,k)+ (h/2)*(fn + f);
         
-        %y(n+1) in two step
+        %%%%%%%%in two steps
         hm = h/2;
-        ym_guess = ynList(:,k)+hm*f;
-        [ym,calls] = newtonODEadaptive(func,Jacob,ym_guess,...
-            tol,tnList(k)+hm,ynList(:,k),hm);
-        nfun = nfun + calls +1;
-        f = feval(func,tnList(k)+hm,ym);
-        y_hat_guess = ynList(:,k)+hm*f;
-        [y_hat,calls] = newtonODEadaptive(func,Jacob,y_hat_guess,...
-            tol,tnList(k)+h,ym,hm);
-        nfun = nfun +calls+1;
+        yn_guess = ynList(:,k) + hm*f;
+        [yn,calls] = newtonODEadaptive(func,Jacob,...
+            yn_guess,tol,tnList(k)+hm,ynList(:,k),hm);
+        fn = feval(func,tnList(k) + hm ,yn);
+        nfun = nfun+calls+1;
+        ym = ynList(:,k)+ (hm/2)*(fn + f);
+        
+        fn1 = feval(func,tnList(k) + hm ,ym);
+        yn_guess = ym + hm*fn1;
+        [yn,calls] = newtonODEadaptive(func,Jacob,...
+            yn_guess,tol,tnList(k)+h,ym,hm);
+        nfun = nfun+calls+2;
+        fn = feval(func,tnList(k) + h ,yn);
+        y_hat = ym + (hm/2)*(fn + fn1);
         
         e = abs(y_hat - y);
         r = max(e./max(abstol,abs(y_hat).*reltol));
-        if r<=1.0 || it > 1000
-            rList(k) = r;
-            hList(k) = h;
+        if r<=1.0
             acceptedStep = 1;
+            hList(k) = h;
+            rList(k) = r;
             ynList(:,k+1) = y_hat;
             tnList(k+1) = tnList(k)+h;
         end

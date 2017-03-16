@@ -2,14 +2,16 @@
 % font size 16
 %% Impicit Euler
 close all; clear all;
-N = 29;
+N = 100;
 tspan = [0 10];
 [tnList,ynList] = ImplicitEulers(@func,@Jacob,tspan,N,1);
 [tnList1,ynList1] = ExplicitEulers(@func,tspan,N,1);
+[tnList2,ynList2] = ImplicitTrapezoid(@func,@Jacob,tspan,N,1);
 
 hold on
     plot(tnList,ynList,'LineWidth',2)
     plot(tnList1,ynList1)
+    plot(tnList2,ynList2,'--','LineWidth',2)
     plot(tnList,exp(-1*tnList)*1)  %e^(lambda*x)*x0
     legend('implicit','explicit','real')
 hold off
