@@ -2,13 +2,15 @@
 % font size 16
 %% Impicit Euler
 close all; clear all;
-[tnList,ynList] = ImplicitEulers(@func,@Jacob,5,100,1);
-[tnList1,ynList1] = ExplicitEulers(@func,5,100,1);
+N = 29;
+tspan = [0 10];
+[tnList,ynList] = ImplicitEulers(@func,@Jacob,tspan,N,1);
+[tnList1,ynList1] = ExplicitEulers(@func,tspan,N,1);
 
 hold on
-    plot(tnList,ynList)
+    plot(tnList,ynList,'LineWidth',2)
     plot(tnList1,ynList1)
-    plot(tnList,exp(1*tnList)*1)  %e^(lambda*x)*x0
+    plot(tnList,exp(-1*tnList)*1)  %e^(lambda*x)*x0
     legend('implicit','explicit','real')
 hold off
 %% Implict Euler for multidimensional for Predator-Prey

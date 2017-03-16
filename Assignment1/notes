@@ -9,3 +9,7 @@ Tareas
 - 
 
 Question: can we use the already implemented DOPRI?
+Question: do we have to implement a implicit trapezoid also?
+
+Question1: do we need step doubling para la pregunta 1.5?
+Question2: 
